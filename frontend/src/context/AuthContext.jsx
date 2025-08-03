@@ -1,9 +1,12 @@
 import {createContext, useContext, useEffect, useState} from 'react'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const AuthContext = createContext()
 
 export const AuthProvider = ({children}) => {
+
+    const navigate = useNavigate()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
 
@@ -18,7 +21,8 @@ export const AuthProvider = ({children}) => {
             const response = await api.post("/login", {email, password})
             setUser(response.data)
             localStorage.setItem("authToken", response.data.token)
-            return response.data
+            navigate("/")
+            
         }
         catch (error) {
             throw error.response.data
@@ -30,8 +34,8 @@ export const AuthProvider = ({children}) => {
 
         try {
 
-            const response = await api.post("/register", {name, email, password, password_confirmation})
-            return response.data
+            await api.post("/register", {name, email, password, password_confirmation})
+            login(email, password)
 
         }
         catch (error) {
@@ -93,6 +97,7 @@ export const AuthProvider = ({children}) => {
             value={{
                 user,
                 loading,
+                setLoading,
                 login, 
                 register,
                 logout

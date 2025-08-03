@@ -4,15 +4,18 @@ import Layout from '../pages/Layout'
 import Home from '../pages/Home'
 import './App.css'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext.jsx'
+
 
 function App() {
 
   return (
     <div
-      className='relative font-poppins bg-slate-800 min-h-screen h-full w-full text-white pt-20'
+      className='relative font-poppins bg-slate-800 min-h-screen h-full w-full text-white pt-10'
     >
       <BrowserRouter>
-        <Routes>
+        <AuthProvider>
+          <Routes>
             <Route
               index 
               element={<Home/>}
@@ -29,7 +32,8 @@ function App() {
               path={'/Register'}
               element={<Register/>}
             />
-        </Routes>
+          </Routes>
+        </AuthProvider>
         <Layout></Layout>
       </BrowserRouter>
     </div>

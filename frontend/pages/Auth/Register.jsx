@@ -1,13 +1,36 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
+import { useAuth } from '../../src/context/AuthContext'
 
 const Register = () => {
 
-  const [username, setUsername] = useState("")
+  const { login, register, loading } = useAuth()
+
+  const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
+  const [error, setError] = useState("")
   
   const [showPassword, setShowPassword] = useState(false)
+
+  const handleSubmit = async (e) => {
+
+    e.preventDefault()
+
+    if (password !== confirmPassword) {
+      setError("The passwords do not match, try again")
+      return
+    }
+
+    try {
+      await register(name, email, password, confirmPassword)
+    }
+    catch (error) {
+      setError("registration failed")
+    }
+ 
+  }
 
   return (
     <div
@@ -15,13 +38,13 @@ const Register = () => {
     >
 
       <form 
-        className='flex flex-col gap-5 bg-slate-700 border-2 border-slate-600 w-96 h-full p-5 rounded-md'
-        onSubmit={(e) => e.preventDefault()}
+        className='flex flex-col gap-10 bg-slate-900 border border-white w-96 h-full p-5 rounded-md'
+        onSubmit={(e) => handleSubmit(e)}
       >
         
         {/* title */}
         <div
-          className='w-full flex justify-center items-center'
+          className='w-full flex justify-center  items-center'
         >
           <p className='text-3xl font-bold'>
             Sign In
@@ -30,12 +53,12 @@ const Register = () => {
 
         {/* inputs */}
         <div
-          className='flex flex-col gap-3'
+          className='flex flex-col gap-5'
         >
 
           {/* username */}
           <div
-            className='flex flex-col gap-1 w-full'
+            className='flex flex-col gap-2 w-full'
           >
             <label
               className='pl-1 text-sm'
@@ -45,15 +68,15 @@ const Register = () => {
             <input 
               type="text" 
               placeholder='Enter your username'
-              className='p-2 pl-3 outline-none border-2 border-slate-300 rounded-md text-sm'  
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              className='p-2 pl-3 outline-none border border-slate-300 rounded-sm text-sm'  
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
           </div>
 
           {/* email */}
           <div
-            className='flex flex-col gap-1 w-full'
+            className='flex flex-col gap-2 w-full'
           >
             <label
               className='pl-1 text-sm'
@@ -63,7 +86,7 @@ const Register = () => {
             <input 
               type="text" 
               placeholder='Enter your Email'
-              className='p-2 pl-3 outline-none border-2 border-slate-300 rounded-md text-sm'  
+              className='p-2 pl-3 outline-none border border-slate-300 rounded-sm text-sm'  
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -71,7 +94,7 @@ const Register = () => {
 
           {/* Password */}
           <div
-            className='flex flex-col gap-1 w-full'
+            className='flex flex-col gap-2 w-full'
           >
             <label
               className='pl-1 text-sm'
@@ -87,11 +110,11 @@ const Register = () => {
                   : "password"
                 } 
                 placeholder='Enter your Password'
-                className='p-2 pl-3 outline-none border-2 border-slate-300 rounded-md text-sm w-full'  
+                className='p-2 pl-3 outline-none border border-slate-300 rounded-sm text-sm w-full'  
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <button
+              <span
                 className='absolute text-xs right-3 top-3 text-white/70'
                 onClick={() => setShowPassword(!showPassword)}
               >
@@ -99,14 +122,14 @@ const Register = () => {
                   ? "Hide"
                   : "Show"
                 }
-              </button>
+              </span>
             </div>
             
           </div>
 
           {/* confirm Password */}
           <div
-            className='flex flex-col gap-1 w-full'
+            className='flex flex-col gap-2 w-full'
           >
             <label
               className='pl-1 text-sm'
@@ -122,11 +145,11 @@ const Register = () => {
                   : "password"
                 } 
                 placeholder='Confirm your Password'
-                className='p-2 pl-3 outline-none border-2 border-slate-300 rounded-md text-sm w-full'  
+                className='p-2 pl-3 outline-none border border-slate-300 rounded-sm text-sm w-full'  
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
-              <button
+              <span
                 className='absolute text-xs right-3 top-3 text-white/70'
                 onClick={() => setShowPassword(!showPassword)}
               >
@@ -134,11 +157,39 @@ const Register = () => {
                   ? "Hide"
                   : "Show"
                 }
-              </button>
+              </span>
             </div>
             
           </div>
 
+        </div>
+
+        {/* other buttons */}
+        <div
+          className='flex flex-col gap-5 items-center justify-center'
+        >
+
+          <p>
+            {error}
+          </p>
+
+          <button
+            type='submit'
+            className='bg-blue-700 p-2 rounded-sm font-semibold text-lg w-full cursor-pointer'
+          >
+            {loading 
+              ? "Processing..."
+              : "Log In"
+            }
+          </button>
+          
+          <Link
+            to={'/Login'}
+            className='text-sm text-white/50'
+          >
+            Already have an account Log In
+          </Link>
+          
         </div>
 
       </form>
