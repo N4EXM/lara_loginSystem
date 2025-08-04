@@ -21,8 +21,7 @@ export const AuthProvider = ({children}) => {
             const response = await api.post("/login", {email, password})
             setUser(response.data)
             localStorage.setItem("authToken", response.data.token)
-            navigate("/")
-            
+            navigate(-1)
         }
         catch (error) {
             throw error.response.data

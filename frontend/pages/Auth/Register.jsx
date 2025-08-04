@@ -4,7 +4,7 @@ import { useAuth } from '../../src/context/AuthContext'
 
 const Register = () => {
 
-  const { login, register, loading } = useAuth()
+  const { register, loading } = useAuth()
 
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
@@ -14,6 +14,7 @@ const Register = () => {
   
   const [showPassword, setShowPassword] = useState(false)
 
+  // handles the registration of the user
   const handleSubmit = async (e) => {
 
     e.preventDefault()
@@ -47,7 +48,7 @@ const Register = () => {
           className='w-full flex justify-center  items-center'
         >
           <p className='text-3xl font-bold'>
-            Sign In
+            Sign Up
           </p>
         </div>
 
@@ -179,7 +180,7 @@ const Register = () => {
           >
             {loading 
               ? "Processing..."
-              : "Log In"
+              : "Register"
             }
           </button>
           
