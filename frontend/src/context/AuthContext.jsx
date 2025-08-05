@@ -9,22 +9,33 @@ export const AuthProvider = ({children}) => {
     const navigate = useNavigate()
     const [user, setUser] = useState(null)
     const [loading, setLoading] = useState(true)
+    const [authenticated, setAuthenticated] = useState(false)
 
     const api = axios.create({
         baseURL: "http://localhost:8000/api",
         withCredentials: true
     })
 
-    const login = async (email, password) => {
+    const login = async (email, password, rememberMe) => {
 
         try {
             const response = await api.post("/login", {email, password})
-            setUser(response.data)
-            localStorage.setItem("authToken", response.data.token)
             navigate(-1)
+            if (rememberMe) {
+                localStorage.setItem("auth_token", response.data.token)
+            }
+            else {
+                sessionStorage.setItem("auth_token", response.data.token)
+            }
+            setUser({
+                id: response.data.user.id,
+                email: response.data.user.email,
+                name: response.data.user.name
+            })
+            setAuthenticated(true)
         }
         catch (error) {
-            throw error.response.data
+            throw error.response?.data
         }
 
     }
@@ -49,9 +60,17 @@ export const AuthProvider = ({children}) => {
 
         try {
 
-            await api.post("/logout")
+            await axios.post("http://localhost:8000/api/logout", {},{
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`
+                },
+                withCredentials: true
+            })
             setUser(null)
-            localStorage.removeItem("authToken")
+            setAuthenticated(false)
+            localStorage.removeItem("auth_token")
+            sessionStorage.removeItem("auth_token")
+            navigate('/Login')
 
         }
         catch (error) {
@@ -63,7 +82,7 @@ export const AuthProvider = ({children}) => {
  
     const fetchUser = async () => {
         
-        const token = localStorage.getItem("authToken")
+        const token = localStorage.getItem("auth_token")
         if (!token) {
             setLoading(false)
             return
@@ -74,6 +93,7 @@ export const AuthProvider = ({children}) => {
             api.defaults.headers.common["Authorization"] = `Bearer ${token}`
             const response = await api.get("/user")
             setUser(response.data)
+            setAuthenticated(true)
 
         }
         catch (error) {
@@ -91,12 +111,19 @@ export const AuthProvider = ({children}) => {
         fetchUser()
     }, [])
 
+    // useEffect(() => {
+    //     console.log("token: ",localStorage.getItem("auth_token"))
+    //     console.log("user: ", user)
+    // }, [user])
+
     return (
         <AuthContext.Provider
             value={{
                 user,
                 loading,
                 setLoading,
+                setAuthenticated,
+                authenticated,
                 login, 
                 register,
                 logout
@@ -109,3 +136,13 @@ export const AuthProvider = ({children}) => {
 }
 
 export const useAuth = () => useContext(AuthContext)
+
+
+// 
+//     "token":"7|lTaLwXRNXiAo7kBrFo43iKawFt28ehzOhm9NMn5W5234e71f",
+//     "user":{
+//             "id":1,
+//             "name":"Naeem",
+//             "email":"Naeem@gmail.com"
+//     }
+// }

@@ -39,6 +39,7 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
+            'remember' => 'boolean'
         ]);
 
         $user = User::where('email', $request->email)->first();
@@ -50,23 +51,39 @@ class AuthController extends Controller
         }
 
         // Create token and return response
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken(
+            name: 'auth_token',
+            abilities: ["*"],
+            expiresAt: $request->remeber ? now()->addDays(30) : null
+        )->plainTextToken;
 
         return response()->json([
             'token' => $token,
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                // Don't return sensitive data
-            ]
+            'user' => $user->only(['id', 'name', 'email']),
+            'expires_at' => $request->remember ? now()->addDays(30) : now()->addHours(2)
         ]);
     }
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-        return response()->json(['message' => 'Logged out successfully']);
+        // $request->user()->currentAccessToken()->delete();
+        // return response()->json(['message' => 'Logged out successfully']);
+
+        try {
+            // Delete the current access token
+            $request->user()->currentAccessToken()->delete();
+            
+            return response()->json([
+                'message' => 'Logged out successfully'
+            ]);
+        }
+        catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Logout failed',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+
     }
 
     public function user(Request $request)

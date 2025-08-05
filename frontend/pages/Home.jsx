@@ -3,18 +3,27 @@ import { useAuth } from '../src/context/AuthContext'
 
 const Home = () => {
 
-  const { user } = useAuth()
+  const { user, authenticated, logout } = useAuth()
 
   return (
     <div 
-      className='flex items-center justify-center w-full min-h-screen h-full bg-slate-800'
+      className='flex flex-col  gap-5 items-center justify-center w-full min-h-screen h-full bg-slate-800'
     > 
       <p>
-        {user 
-          ? "Welcome Guest" 
-          : `Welcome ${user?.name}`
+        {authenticated  
+          ? `Welcome ${user.name}`
+          : "Welcome Guest" 
         }
       </p>
+
+      {authenticated &&
+        <button
+          onClick={() => logout()}
+          className='px-4 p-2 rounded-md bg-blue-500 font-medium'
+        >
+          Logout
+        </button>
+      }
 
     </div>
   )
